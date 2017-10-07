@@ -315,3 +315,8 @@ function getDateInFormat() {
         + ('0' + d.getDate()).slice(-2);
     return date;
 }
+
+// Callback function in case google maps api fails
+function googleMapsError() {
+    $(".content-wrapper").html("<h1>Google Maps failed to load! Try to Refresh the page</h1>");
+}

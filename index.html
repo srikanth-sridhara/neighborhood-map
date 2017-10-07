@@ -53,8 +53,7 @@
     		</div> <!-- .content-wrapper -->
 
             <div id="modal-background"></div>
-            <div id="modal-content"><h2 class="modal-title">Features of MapSearch</h2><p>
-            <br>
+            <div id="modal-content"><h2 class="modal-title">Features of MapSearch</h2><p><br>
                 1] This is a neighborhood search app. With this, you will get a list of 15 places of various categories.<br>
                 2] The categories are: Restaurants, Parks, Cafe's and Gas Stations.<br>
                 3] You can filter the results by searching in the top bar or searching by category in the sidebar.<br>
@@ -77,6 +76,6 @@
         <script src="js/app.js"></script>
         <script src="js/google_maps_apis.js"></script>
         <script src="js/sidebar.js"></script> <!-- Resource jQuery -->
-        <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAO3aOEL70kWNHJ7BKRjb8IZlSi5R_1PNM&libraries=geometry&callback=initMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAO3aOEL70kWNHJ7BKRjb8IZlSi5R_1PNM&libraries=geometry&callback=initMap" onerror="googleMapsError()"></script>
     </body>
 </html>
