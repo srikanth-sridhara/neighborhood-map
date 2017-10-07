@@ -1,81 +1,106 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta charset="utf-8">
-        <title>Neighborhood Map</title>
 
-        <!-- Stylesheets -->
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
-        <link rel="stylesheet" href="css/style.css"> <!-- Styling -->
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Neighborhood Map</title>
 
-    </head>
-    <body>
-        <header class="cd-main-header">
-    		<a data-bind="click: resetMap" href="#0" class="cd-logo">
+    <!-- Stylesheets -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300,400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/reset.css">
+    <!-- CSS reset -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Styling -->
+
+</head>
+
+<body>
+    <header class="cd-main-header">
+        <a data-bind="click: resetMap" href="#0" class="cd-logo">
                 <img src="#" alt="MapSearch">
             </a>
 
-    		<div class="cd-search is-hidden">
-    			<form action="#0">
-    				<input type="search" placeholder="Search..." data-bind="textInput: filter">
-    			</form>
-    		</div> <!-- cd-search -->
+        <div class="cd-search is-hidden">
+            <form action="#0">
+                <input type="search" placeholder="Search..." data-bind="textInput: filter">
+            </form>
+        </div>
+        <!-- cd-search -->
 
-    		<a href="#0" class="cd-nav-trigger">Menu<span></span></a>
-            <nav class="cd-nav">
-                <ul class="cd-top-nav">
-                    <li><a id="modal-launcher" href="#">About</a></li>
-                </ul>
-            </nav>
-    	</header> <!-- .cd-main-header -->
+        <a href="#0" class="cd-nav-trigger">Menu<span></span></a>
+        <nav class="cd-nav">
+            <ul class="cd-top-nav">
+                <li><a id="modal-launcher" href="#">About</a></li>
+            </ul>
+        </nav>
+    </header>
+    <!-- .cd-main-header -->
 
-        <main class="cd-main-content">
-            <nav class="cd-side-nav">
-                <ul class="active">
-                    <li class="cd-label">Categories</li>
-    				<li class="has-children">
-    					<a href="#0">Search by Category</a>
-                        <ul class="active" data-bind="foreach: neighborhood_map_model().categories">
-                            <li><a href="#0" data-bind="text: val, click: $parent.handleCategoryClick"></a></li>
-                        </ul>
-    				</li>
-                </ul>
-                <li class="cd-label">All items</li>
-                <ul class="active" data-bind="foreach: filteredLocations">
-                    <li><a href="#0" data-bind="text: title, click: $parent.handleMarkerClick"></a></li>
-                </ul>
-            </nav>
+    <main class="cd-main-content">
+        <nav class="cd-side-nav">
+            <ul class="active">
+                <li class="cd-label">Categories</li>
+                <li class="has-children">
+                    <a href="#0">Search by Category</a>
+                    <ul class="active" data-bind="foreach: neighborhood_map_model().categories">
+                        <li><a href="#0" data-bind="text: val, click: $parent.handleCategoryClick"></a></li>
+                    </ul>
+                </li>
+            </ul>
+            <li class="cd-label">All items</li>
+            <ul class="active" data-bind="foreach: filteredLocations">
+                <li><a href="#0" data-bind="text: title, click: $parent.handleMarkerClick"></a></li>
+            </ul>
+        </nav>
 
-            <div class="content-wrapper">
-                <div id="map"></div>
-    		</div> <!-- .content-wrapper -->
+        <div class="content-wrapper">
+            <div id="map"></div>
+        </div>
+        <!-- .content-wrapper -->
 
-            <div id="modal-background"></div>
-            <div id="modal-content"><h2 class="modal-title">Features of MapSearch</h2><p><br>
-                1] This is a neighborhood search app. With this, you will get a list of 15 places of various categories.<br>
+        <div id="modal-background"></div>
+        <div id="modal-content">
+            <h2 class="modal-title">Features of MapSearch</h2>
+            <p><br> 1] This is a neighborhood search app. With this, you will get a list of 15 places of various categories.<br>
                 2] The categories are: Restaurants, Parks, Cafe's and Gas Stations.<br>
                 3] You can filter the results by searching in the top bar or searching by category in the sidebar.<br>
                 4] There is also a map with markers to those places.<br>
-                5] Clicking on a marker or the list item will open an infoWindow with:<br> > A street view > More information.<br>
+                5] Clicking on a marker or the list item will open an infoWindow with:<br>
+                > A street view > More information.<br>
                 6] In the More information section, data about the location is obtained from Yelp and Foursquare APIs.<br>
                 7] Clicking on the MapSearch logo will reset the map to initial default zoom value and center the map.<br>
             </p>
+        </div>
+    </main>
+    <!-- .cd-main-content -->
+
+    <script type="text/html" id="iw-template">
+        <div id="infoWindow">
+            <div id="buttonHolder">
+                <button id="StreetViewButton" data-bind="click: showOnlyPano">Street View</button>
+                <button id="InformationButton" data-bind="click: showOnlyInfo">More Information</button>
             </div>
-    	</main> <!-- .cd-main-content -->
+            <div id="pano" data-bind="html: panoData, visible: panoVisible"></div>
+            <div id="fsqr" class="iw-shadow" data-bind="html: fsqrData, visible: fsqrVisible"></div>
+            <div id="yelp" class="iw-shadow" data-bind="html: yelpData, visible: yelpVisible"></div>
+        </div>
+    </script>
 
-        <!-- Scripts -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="js/lib/knockout-3.4.2.js"></script>
-        <script src="js/lib/fontawesome-markers.min.js"></script>
-        <script src="js/lib/modernizr.js"></script> <!-- Modernizr -->
-        <script src="js/lib/jquery.menu-aim.js"></script>
-        <script src="js/lib/loadingoverlay.min.js"></script>
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/lib/knockout-3.4.2.js"></script>
+    <script src="js/lib/fontawesome-markers.min.js"></script>
+    <script src="js/lib/modernizr.js"></script>
+    <!-- Modernizr -->
+    <script src="js/lib/jquery.menu-aim.js"></script>
+    <script src="js/lib/loadingoverlay.min.js"></script>
 
-        <script src="js/app.js"></script>
-        <script src="js/google_maps_apis.js"></script>
-        <script src="js/sidebar.js"></script> <!-- Resource jQuery -->
-        <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAO3aOEL70kWNHJ7BKRjb8IZlSi5R_1PNM&libraries=geometry&callback=initMap" onerror="googleMapsError()"></script>
-    </body>
+    <script src="js/app.js"></script>
+    <script src="js/google_maps_apis.js"></script>
+    <script src="js/sidebar.js"></script>
+    <!-- Resource jQuery -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAO3aOEL70kWNHJ7BKRjb8IZlSi5R_1PNM&libraries=geometry&callback=initMap" onerror="googleMapsError()"></script>
+</body>
+
 </html>

@@ -1,8 +1,7 @@
 markers = [];
-var infoWindow;
 var map;
 var bounds;
-
+var ViewModel;
 // Get fontawesome icon to use as marker image
 function getIcon(type) {
     switch(type) {
@@ -47,17 +46,16 @@ function initMap() {
     };
     map = new google.maps.Map(mapId, mapOptions);
     bounds = new google.maps.LatLngBounds();
-    infoWindow = createNewInfoWindow();
+    ViewModel = new NeighborhoodMapViewModel(map);
     map.addListener('click', function() {
-        closeInfoWindow(infoWindow, map);
+        closeInfoWindow(ViewModel.infoWindow, map);
         for (var i = markers.length - 1; i >= 0; i--) {
             markers[i].setAnimation();
         };
         $("#yelp").LoadingOverlay("hide");
         $("#fsqr").LoadingOverlay("hide");
     });
-
-    ko.applyBindings(new NeighborhoodMapViewModel(map));
+    ko.applyBindings(ViewModel);
 }
 
 // ******* Marker functions *******
@@ -79,7 +77,7 @@ function createNewMarker(map, position, type, content, streetview, title) {
     });
     markers.push(marker);
     marker.addListener('click', function() {
-        populateInfoWindow(this, infoWindow);
+        populateInfoWindow(this);
         handleAnimation(this);
     });
     return marker;
@@ -115,31 +113,12 @@ function handleAnimation(currentMarker) {
 
 
 // ******* InfoWindow functions *******
-function populateInfoWindow(marker, infowindow) {
-    infowindow.setContent('');
-    infowindow.marker = marker;
-    infowindow.addListener('closeclick', function() {
-        infowindow.marker = null;
-    });
-
-    content = '<div id="infoWindow"><div id="buttonHolder">';
-    content +='<button id="StreetViewButton">Street View</button>';
-    content +='<button id="InformationButton">More Information</button></div>';
-    content +='<div id="pano"></div>';
-    content +='<div id="fsqr" class="iw-shadow"></div>';
-    content +='<div id="yelp" class="iw-shadow"></div></div>';
-
-    infowindow.setContent(content);
-    infowindow.open(map, marker);
-
+function populateInfoWindow(marker) {
+    ViewModel.infoWindow.open(map, marker);
     // Populate with ajax
     addStreetView(marker);
-    populateFourSquareContent(marker);
     populateYelpContent(marker);
-
-    // Add click listeners
-    $('#map').on('click', '#InformationButton', showOnlyInfo);
-    $('#map').on('click', '#StreetViewButton', showOnlyPano);
+    populateFourSquareContent(marker);
     showOnlyPano();
 }
 
@@ -177,7 +156,7 @@ function addStreetView(marker) {
                 document.getElementById('pano'), panoramaOptions);
         } else {
             var content = '<h2>Unable to load Street View</h2>';
-            $('#pano').html(content);
+            ViewModel.panoData(content);
         }
     }
     // Use streetview service to get the closest streetview image within
@@ -212,13 +191,20 @@ function populateYelpContent(marker){
             content += '<img src="' + yelpimg + '" width="100px"/></a></p>';
             content += '<img src="' + getRatingImage(rating) + '" />';
             content += '<p>Based on ' + review_count + ' Reviews</p>';
-            $('#yelp').html(content);
+            ViewModel.yelpData(content);
+            $("#yelp").LoadingOverlay("hide");
+            clearTimeout(yelpRequestTimeout);
+        },
+        error: function(response) {
+            content = '<h2>!! Failed to load yelp resources !!</h2>';
+            ViewModel.yelpData(content);
             $("#yelp").LoadingOverlay("hide");
             clearTimeout(yelpRequestTimeout);
         }
     });
     var yelpRequestTimeout = setTimeout(function() {
-        $('#yelp').html("<h2>!! Failed to load yelp resources !!</h2>");
+        content = '<h2>!! Failed to load yelp resources !!</h2>';
+        ViewModel.yelpData(content);
         $("#yelp").LoadingOverlay("hide");
     }, 15000);
 }
@@ -256,27 +242,34 @@ function populateFourSquareContent(marker) {
                 content += '<p>URL: No URL available</p>';
             }
             content += '<p>Address:</p><address>' + address + '</address>';
-            $('#fsqr').html(content);
+            ViewModel.fsqrData(content);
+            $("#fsqr").LoadingOverlay("hide");
+            clearTimeout(fsqRequestTimeout);
+        },
+        error: function(response) {
+            content = '<h2>!! Failed to load foursquare resources !!</h2>';
+            ViewModel.fsqrData(content);
             $("#fsqr").LoadingOverlay("hide");
             clearTimeout(fsqRequestTimeout);
         }
     });
     var fsqRequestTimeout = setTimeout(function() {
-        $('#fsqr').html("<h2>!! Failed to load foursquare resources !!</h2>");
+        content = '<h2>!! Failed to load foursquare resources !!</h2>';
+        ViewModel.fsqrData(content);
         $("#fsqr").LoadingOverlay("hide");
     }, 15000);
 }
 
 function showOnlyPano() {
-    $( "#pano" ).show();
-    $( "#yelp" ).hide();
-    $( "#fsqr" ).hide();
+    ViewModel.panoVisible(true);
+    ViewModel.fsqrVisible(false);
+    ViewModel.yelpVisible(false);
 }
 
 function showOnlyInfo() {
-    $( "#fsqr" ).show();
-    $( "#yelp" ).show();
-    $( "#pano" ).hide();
+    ViewModel.panoVisible(false);
+    ViewModel.fsqrVisible(true);
+    ViewModel.yelpVisible(true);
 }
 
 // ******* Utility functions *******

@@ -151,7 +151,7 @@ InfoWindow styling
   padding: 5px 5px 5px 5px;
   margin-top: 5px;
   margin-left: 5px;
-  min-height: 30px;
+  min-height: 20px;
 }
 #yelp {
   display: block;
@@ -160,7 +160,7 @@ InfoWindow styling
   padding: 5px 5px 5px 5px;
   margin-top: 10px;
   margin-left: 5px;
-  min-height: 30px;
+  min-height: 20px;
 }
 
 #markerLayer img {
@@ -217,7 +217,7 @@ InfoWindow styling
   display: block;
 }
 #buttonHolder > button {
-  width: 50%;
+  width: 49%;
 }
 @media only screen and (min-width: 768px) {
   #infoWindow {

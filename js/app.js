@@ -157,6 +157,29 @@ var NeighborhoodMapViewModel = function(map) {
     self.filter = ko.observable('');
     self.categoryfilter = ko.observable('');
 
+    self.panoData = ko.observable();
+    self.fsqrData = ko.observable();
+    self.yelpData = ko.observable();
+    self.panoVisible = ko.observable(true);
+    self.fsqrVisible = ko.observable(false);
+    self.yelpVisible = ko.observable(false);
+
+    // Infowindow creation
+    var iwcontent = '<div id="iw"' +
+        'data-bind="template: {' +
+            'name: \'iw-template\',' +
+            'pano: panoData, fsqr: fsqrData, yelp: yelpData' +
+        '}"></div>';
+    self.infoWindow = createNewInfoWindow(iwcontent);
+
+    var isInfoWindowLoaded = false;
+    google.maps.event.addListener(self.infoWindow, 'domready', function () {
+        if (!isInfoWindowLoaded) {
+            ko.applyBindings(self, $("#iw")[0]);
+            isInfoWindowLoaded = true;
+        }
+    });
+
     // Compute a list of filtered markers
     self.filteredLocations = ko.computed(function() {
         if (self.filter()) {
@@ -168,11 +191,21 @@ var NeighborhoodMapViewModel = function(map) {
             showOnlyFilteredMarkers(remaining);
             return remaining;
         } else {
-            if (markers.length !== 0) {
-                showOnlyFilteredMarkers(
-                    self.neighborhood_map_model().locations());
+            if (self.categoryfilter()) {
+                var categoryString = self.categoryfilter().toLowerCase();
+                remaining = ko.utils.arrayFilter(
+                    self.neighborhood_map_model().locations(), function (loc) {
+                    return loc.category.toLowerCase().indexOf(categoryString) >= 0;
+                });
+                showOnlyFilteredMarkers(remaining);
+                return remaining;
+            } else {
+                if (markers.length !== 0) {
+                    showOnlyFilteredMarkers(
+                        self.neighborhood_map_model().locations());
+                }
+                return self.neighborhood_map_model().locations();
             }
-            return self.neighborhood_map_model().locations();
         }
     }, self);
 
@@ -215,8 +248,7 @@ var NeighborhoodMapViewModel = function(map) {
     self.handleMarkerClick = function(data) {
         var id = data.id;
         var marker = markers[id];
-        self.categoryfilter('');
-        populateInfoWindow(marker, infoWindow);
+        populateInfoWindow(marker);
         handleAnimation(marker);
         $('.cd-nav-trigger').trigger('click');
     };
@@ -225,7 +257,7 @@ var NeighborhoodMapViewModel = function(map) {
     self.handleCategoryClick = function(data) {
         self.filter('');
         self.categoryfilter(data.id);
-        closeInfoWindow(infoWindow, map);
+        closeInfoWindow(self.infoWindow, map);
         map.fitBounds(bounds);
         $('.cd-nav-trigger').trigger('click');
     };
@@ -234,7 +266,7 @@ var NeighborhoodMapViewModel = function(map) {
     self.resetMap = function() {
         self.categoryfilter('');
         self.filter('');
-        closeInfoWindow(infoWindow, map);
+        closeInfoWindow(self.infoWindow, map);
         for (var i = markers.length - 1; i >= 0; i--) {
             markers[i].setAnimation();
         }
