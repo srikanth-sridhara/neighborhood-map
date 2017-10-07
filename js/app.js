@@ -146,7 +146,7 @@ var NeighborhoodMapModel = function() {
         {id: 'park', val: 'Parks'},
         {id: 'fuel', val: 'Gas Stations'}
     ]);
-}
+};
 
 // ViewModel with the filters and population of markers
 var NeighborhoodMapViewModel = function(map) {
@@ -168,7 +168,7 @@ var NeighborhoodMapViewModel = function(map) {
             showOnlyFilteredMarkers(remaining);
             return remaining;
         } else {
-            if (markers.length != 0) {
+            if (markers.length !== 0) {
                 showOnlyFilteredMarkers(
                     self.neighborhood_map_model().locations());
             }
@@ -187,7 +187,7 @@ var NeighborhoodMapViewModel = function(map) {
             showOnlyFilteredMarkers(remaining);
             return remaining;
         } else {
-            if (markers.length != 0) {
+            if (markers.length !== 0) {
                 showOnlyFilteredMarkers(
                     self.neighborhood_map_model().locations());
             }
@@ -213,7 +213,7 @@ var NeighborhoodMapViewModel = function(map) {
 
     // This handles the click of a marker by populating the infowindow
     self.handleMarkerClick = function(data) {
-        var id = data['id'];
+        var id = data.id;
         var marker = markers[id];
         self.categoryfilter('');
         populateInfoWindow(marker, infoWindow);
@@ -237,7 +237,7 @@ var NeighborhoodMapViewModel = function(map) {
         closeInfoWindow(infoWindow, map);
         for (var i = markers.length - 1; i >= 0; i--) {
             markers[i].setAnimation();
-        };
+        }
         map.fitBounds(bounds);
     };
 
